@@ -3,13 +3,40 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import animation
-DATAFILE = r"/Users/uzma/Desktop/9Lung Function AnalyzerTeamProjectQues/spirometry_data.csv"
+DATAFILE = r"/Users/uzma/Desktop/Programming_Project_Data_REAL(Sheet1).csv"
 def load_data(path):
     df = pd.read_csv(path)
-    df = df[df['Time'] >= 0]
-    return df
+    df = df[['PatientID', 'Time', 'Volume', 'Flow']]
+    df = df.dropna(subset=['PatientID', 'Time', 'Volume', 'Flow'])
+    return(df)
 
 def compute_lung_metrics(df):
+   metrics_list = []
+   # Loop over each patient
+   for patient in df['PatientID'].unique():
+        patient_data = df[df['PatientID'] == patient]
+
+        # FEV1: max volume at or before 1 second
+        fev1 = patient_data[patient_data['Time'] <= 1]['Volume'].max()
+
+        # FVC: total volume exhaled
+        fvc = patient_data['Volume'].max()
+
+        # FEV1/FVC ratio
+        ratio = fev1 / fvc if fvc != 0 else np.nan
+
+        # PEF: peak expiratory flow
+        pef = patient_data['Flow'].max()
+
+        # Append results
+        metrics_list.append([patient, fev1, fvc, ratio, pef])
+
+    # Convert to DataFrame
+        metrics_df = pd.DataFrame(
+        metrics_list,
+        columns=['PatientID', 'FEV1', 'FVC', 'FEV1_FVC', 'PEF']
+    )
+        return metrics_df  # <--- MUST return!
 
 def create_plots(metrics, df):
 
@@ -18,8 +45,9 @@ def animate_breathing(df):
 def export_csv(metrics):
 
 if __name__ == "__main__":
-    df = load_data(DATAFILE)
-    print(df)
-metrics = compute_lung_metrics(df)
+    df = load_data(DATAFILE)  
+    print(df.head())          
+    metrics = compute_lung_metrics(df)
+    print(metrics.head())
 
     
