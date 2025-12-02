@@ -42,7 +42,8 @@ def create_plots(metrics, df):
 
 def animate_breathing(df):
 
-def export_csv(metrics):
+def export_summary(df):
+    df.to_csv(r"C:\Users\2473732\Desktop\Lung_summary.csv", index=False)
 
 if __name__ == "__main__":
     df = load_data(DATAFILE)  
